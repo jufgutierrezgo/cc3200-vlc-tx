@@ -411,13 +411,15 @@ void setup()
 
   manchester();
 
+  /*
+   // Print biffers 
    Serial.println("Buffer 4CSK");
    Serial.println(buffer_4csk);
    Serial.println("Buffer OOK");
    Serial.println(buffer_ook);
    Serial.println("Buffer Manchester");
    Serial.println(buffer_man);
-
+  */
 }
 
 unsigned int num_clients = 2;
