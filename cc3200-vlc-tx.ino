@@ -826,13 +826,14 @@ void get_valRGBW(char* inString) {
 
   //Serial.print("NANIA :) salsa");
 
+  /*
   //Serial.println(temp_val);
   Serial.print("Decimal value of RGBW setter:\n");
   Serial.println(rgbw_val[0]);
   Serial.println(rgbw_val[1]);
   Serial.println(rgbw_val[2]);
   Serial.println(rgbw_val[3]);
-
+  */
 
 
   memset(buffer_temp, 0, 150);
@@ -1008,12 +1009,20 @@ void set_OutputDAC(uint8_t channel_byte4, uint8_t channel_byte3, uint8_t channel
 
   // take the SS pin low to select the chip:
   digitalWrite(SYNC_PIN, LOW);
+  
 
   //  send in the address and value via SPI:
   //SPI.transfer(WTM);
-  SPI.transfer((channel_byte4 << 4) | channel_byte3);
-  SPI.transfer((channel_byte2 << 4) | channel_byte1);
+  SPI.transfer(uint8_t((channel_byte4 << 4) | channel_byte3));
+  SPI.transfer(uint8_t((channel_byte2 << 4) | channel_byte1));
 
+  /*
+  // print the values sended to the DAC to set the output voltage
+  Serial.println("Print HEXA toto set the DACoutput voltage");
+  Serial.println(uint8_t((channel_byte4 << 4) | channel_byte3));
+  Serial.println(uint8_t((channel_byte2 << 4) | channel_byte1));
+  */
+  
   // take the SS pin high to de-select the chip:
   digitalWrite(SYNC_PIN, HIGH);
 }
@@ -1027,8 +1036,8 @@ void setAPI_DAC(char sel) {
 
   switch (sel) {
 
-    case 'A':
-      set_OutputDAC(ch_i, hexa_i[2], hexa_i[1], hexa_i[0]);
+    case 'A':      
+      set_OutputDAC(ch_i, hexa_i[2], hexa_i[1], hexa_i[0]);      
       set_OutputDAC(ch_j, hexa_j[2], hexa_j[1], hexa_j[0]);
       set_OutputDAC(ch_k, hexa_k[2], hexa_k[1], hexa_k[0]);
       set_OutputDAC(ch_w, hexa_w[2], hexa_w[1], hexa_w[0]);
@@ -1072,11 +1081,12 @@ void decimal2hexa(unsigned int decimal_i, unsigned int decimal_j, unsigned int d
   hexa_w[1] = (decimal_w << 8) >> 12;
   hexa_w[0] = (decimal_w << 12) >> 12;
 
+  /*
   Serial.print("Hexadecimal value of RGBW setter:\n");
-  Serial.println(hexa_i[2]);
-  Serial.println(hexa_i[1]);
-  Serial.println(hexa_i[0]);
-
+  Serial.println(hexa_i[2], BIN);
+  Serial.println(hexa_i[1], BIN);
+  Serial.println(hexa_i[0], BIN);
+  */
 }
 
 void setTimer(void (*timer_func)(void), uint32_t freq) {
