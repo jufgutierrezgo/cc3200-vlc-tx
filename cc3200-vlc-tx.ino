@@ -903,7 +903,8 @@ void get_sym16csk(char* inString) {
     h++;
   }
 
-  Serial.println(sym);
+  Serial.println("CSK symbol selected");
+  Serial.println(syn, BIN);
 
 
   memset(buffer_temp, 0, 150);
@@ -1021,7 +1022,7 @@ void set_OutputDAC(uint8_t channel_byte4, uint8_t channel_byte3, uint8_t channel
   Serial.println("Print HEXA toto set the DACoutput voltage");
   Serial.println(uint8_t((channel_byte4 << 4) | channel_byte3));
   Serial.println(uint8_t((channel_byte2 << 4) | channel_byte1));
-  */
+  */  
   
   // take the SS pin high to de-select the chip:
   digitalWrite(SYNC_PIN, HIGH);
@@ -1042,11 +1043,13 @@ void setAPI_DAC(char sel) {
       set_OutputDAC(ch_k, hexa_k[2], hexa_k[1], hexa_k[0]);
       set_OutputDAC(ch_w, hexa_w[2], hexa_w[1], hexa_w[0]);
       set_ModeDAC(SIM_LSB, SIM_MSB);
+      Serial.println("RGBW values setted !!!");
       break;
 
     case 'B':
       set_OutputDAC(ch_w, hexa_w[2], hexa_w[1], hexa_w[0]);
       set_ModeDAC(SIM_LSB, SIM_MSB);
+      Serial.println("DAC for steady OKK setted !!!");
       break;
 
     case 'C':
@@ -1054,6 +1057,7 @@ void setAPI_DAC(char sel) {
       set_OutputDAC(ch_j, hexa_j[2], hexa_j[1], hexa_j[0]);
       set_OutputDAC(ch_k, hexa_k[2], hexa_k[1], hexa_k[0]);
       set_ModeDAC(SIM_LSB, SIM_MSB);
+      Serial.println("DAC for steady CSK setted !!!");
       break;
   }
 
