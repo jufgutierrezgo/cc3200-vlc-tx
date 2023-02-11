@@ -1142,46 +1142,6 @@ void vlc_csk(void)
 
 }
 
-void vlc_csk_white1000(void)
-{
-
-  static uint8_t state_vlc_csk = 0;
-  static uint32_t count_csk_white = 0;
-
-  TimerIntClear(TIMERA0_BASE, TimerIntStatus(TIMERA0_BASE, true));
-
-  switch (state_vlc_csk) {
-
-    case 0:
-      //sync();
-      count_csk_white++;
-      break;
-
-    case 1:
-      test_csk_white1000();
-      count_csk_white++;
-      break;
-
-    default:
-      break;
-
-  }
-
-  if (count_csk_white == freq_vlc) {
-    state_vlc_csk = 1;
-    set_OutputDAC(ch_w, 0, 0, 0);
-  }
-
-  if (count_csk_white == 10 * freq_vlc) {
-    stopTimer();
-    count_csk_white = 0;
-    state_vlc_csk = 0;
-    //Serial.print('F');
-  }
-}
-
-
-
 
 void sync(void) {
 
