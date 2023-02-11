@@ -422,8 +422,7 @@ void loop()
             client.print("<option value='OOK'>OOK</option>");
             client.print("<option value='4CSK'>4CSK</option>");
             client.print("<option value='8CSK'>8CSK</option>");
-            client.print("<option value='16CSK'>16CSK</option>");
-            client.print("<option value='CSK-White1000'>CSK-White1000</option>");
+            client.print("<option value='16CSK'>16CSK</option>");            
             client.print("<option value='testOOK'>testOOK</option>");
             client.print("<option value='test16CSK'>test16CSK</option>");
             client.print("<option value='test8CSK'>test8CSK</option>");
@@ -521,11 +520,7 @@ void loop()
           flag_start_vlc = HIGH;
         }
 
-        if (endsWith(buffer, "GET /set_modulation.php?mod=CSK-White1000")) { // GET for transmit using OOK modulationM
-          setTimer(vlc_csk_white1000, freq_vlc);
-          flag_start_vlc = HIGH;
-        }
-
+        
         if (endsWith(buffer, "GET /set_modulation.php?mod=testOOK")) { // GET for transmit using OOK modulationM
           //freq_vlc = 2*freq_vlc;
           setTimer(test_ook, 2 * freq_vlc);
@@ -547,11 +542,7 @@ void loop()
           csk_type = '2';
           setTimer(test_csk, freq_vlc);
           flag_start_vlc = HIGH;
-        }
-        if (endsWith(buffer, "GET /set_modulation.php?mod=testCSK-White1000")) { // GET for transmit using OOK modulationM
-          setTimer(test_csk_white1000, freq_vlc);
-          flag_start_vlc = HIGH;
-        }
+        }        
 
       }
     }
@@ -1285,18 +1276,6 @@ void test_csk(void)
 
 }
 
-void test_csk_white1000(void)
-{
-  static uint8_t sym_csk = 0;
-
-  TimerIntClear(TIMERA0_BASE, TimerIntStatus(TIMERA0_BASE, true));
-
-  xy_w1000_mapping(sym_csk);
-  sym_csk++;
-  if (sym_csk == 15) sym_csk = 0;
-
-}
-
 
 void ook_mapping(boolean ook_sym) {
 
@@ -1543,146 +1522,6 @@ void xy_16mapping(char buffer_16csk) {
 
 }
 
-
-void xy_w1000_mapping(uint8_t buffer_16csk) {
-  static uint16_t csk_rgb[3] = {
-    0
-  };
-
-  switch (buffer_16csk) {
-    case 0:
-      csk_rgb[0] = Pijk_w1000[5][0];
-      csk_rgb[1] = Pijk_w1000[5][1];
-      csk_rgb[2] = Pijk_w1000[5][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 1:
-      csk_rgb[0] = Pijk_w1000[1][0];
-      csk_rgb[1] = Pijk_w1000[1][1];
-      csk_rgb[2] = Pijk_w1000[1][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 2:
-      csk_rgb[0] = Pijk_w1000[4][0];
-      csk_rgb[1] = Pijk_w1000[4][1];
-      csk_rgb[2] = Pijk_w1000[4][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 3:
-      csk_rgb[0] = Pijk_w1000[2][0];
-      csk_rgb[1] = Pijk_w1000[2][1];
-      csk_rgb[2] = Pijk_w1000[2][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 4:
-      csk_rgb[0] = Pijk_w1000[12][0];
-      csk_rgb[1] = Pijk_w1000[12][1];
-      csk_rgb[2] = Pijk_w1000[12][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 5:
-      csk_rgb[0] = Pijk_w1000[3][0];
-      csk_rgb[1] = Pijk_w1000[3][1];
-      csk_rgb[2] = Pijk_w1000[3][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 6:
-      csk_rgb[0] = Pijk_w1000[0][0];
-      csk_rgb[1] = Pijk_w1000[0][1];
-      csk_rgb[2] = Pijk_w1000[0][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 7:
-      csk_rgb[0] = Pijk_w1000[6][0];
-      csk_rgb[1] = Pijk_w1000[6][1];
-      csk_rgb[2] = Pijk_w1000[6][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 8:
-      csk_rgb[0] = Pijk_w1000[15][0];
-      csk_rgb[1] = Pijk_w1000[15][1];
-      csk_rgb[2] = Pijk_w1000[15][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 9:
-      csk_rgb[0] = Pijk_w1000[10][0];
-      csk_rgb[1] = Pijk_w1000[10][1];
-      csk_rgb[2] = Pijk_w1000[10][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 10:
-      csk_rgb[0] = Pijk_w1000[8][0];
-      csk_rgb[1] = Pijk_w1000[8][1];
-      csk_rgb[2] = Pijk_w1000[8][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 11:
-      csk_rgb[0] = Pijk_w1000[9][0];
-      csk_rgb[1] = Pijk_w1000[9][1];
-      csk_rgb[2] = Pijk_w1000[9][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 12:
-      csk_rgb[0] = Pijk_w1000[14][0];
-      csk_rgb[1] = Pijk_w1000[14][1];
-      csk_rgb[2] = Pijk_w1000[14][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 13:
-      csk_rgb[0] = Pijk_w1000[13][0];
-      csk_rgb[1] = Pijk_w1000[13][1];
-      csk_rgb[2] = Pijk_w1000[13][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 14:
-      csk_rgb[0] = Pijk_w1000[7][0];
-      csk_rgb[1] = Pijk_w1000[7][1];
-      csk_rgb[2] = Pijk_w1000[7][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    case 15:
-      csk_rgb[0] = Pijk_w1000[11][0];
-      csk_rgb[1] = Pijk_w1000[11][1];
-      csk_rgb[2] = Pijk_w1000[11][2];
-      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
-      break;
-
-    default:
-      break;
-  }
-
-}
 
 void manchester(void) {
 
