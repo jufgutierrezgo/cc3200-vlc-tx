@@ -110,28 +110,6 @@ uint8_t select_timer_func = 0;
 //This variable counts the number of frame that have been sent-limit to NO_FRAMES
 uint8_t count_frame = 0;
 
-/*
-  //Using currently linear regression WHITE 0
-  //EDITED MANUALLY
-  const uint16_t Pijk[16][3] = {
-  600,  455,  170,
-  155,  645,  55,
-  0,  657,  120,
-  400,  590,  0,
-  200,  558,  190,
-  0,  711,  0,
-  635,  480,  75,
-  1130, 240,  315,
-  0,  535,  360,
-  360,  295,  700,
-  0,  0,  1829,
-  1310, 0,  705,
-  1010, 385,  0,
-  1600, 210,  115,
-  2070, 0,  292,
-  2800, 0,  0
-  };*/
-
 
 //Using currently linear regression WHITE 0 L=6cd/m2
 //Computed from power matrix for 16-CSK Constellations
@@ -155,57 +133,10 @@ const uint16_t Pijk[16][3] = {
 };
 /* */
 
-/*
-  //Using currently linear regression WHITE 0 L=3cd/m2
-  //Computed from power matrix for 16-CSK Constellations
-  const uint16_t Pijk[16][3] = {
-  424, 118, 305,
-  141, 276, 102,
-   0, 237, 305,
-  424, 237,   0,
-  141, 158, 406,
-   0, 355,   0,
-  565, 158, 102,
-  565,  39, 406,
-   0, 118, 610,
-  141,  39, 711,
-   0,   0, 915,
-  424,   0, 610,
-  847, 118,   0,
-  988,  39, 102,
-  847,   0, 305,
-  1271,   0,   0
-  };
-  /* */
-
-/*
-  //Using currently linear regression WHITE 0 L=2cd/m2
-  //Computed from power matrix for 16-CSK Constellations
-  const uint16_t Pijk[16][3] = {
-  282,  79, 203,
-  94, 184,  68,
-   0, 158, 203,
-  282, 158,   0,
-  94, 105, 271,
-   0, 237,   0,
-  376, 105,  68,
-  376,  26, 271,
-   0,  79, 406,
-  94,  26, 474,
-   0,   0, 610,
-  282,   0, 406,
-  565,  79,   0,
-  659,  26,  68,
-  565,   0, 203,
-  847,   0,   0
-  };
-
-*/
-
 
 //Using currently linear regression WHITE 0 L=6cd/m2
 //Computed from power matrix for 16-CSK Constellations
-const uint16_t Pijk8[16][3] = {
+const uint16_t Pijk8[8][3] = {
   0, 711,   0,
   0, 474, 610,
   847, 474,   0,
@@ -217,56 +148,6 @@ const uint16_t Pijk8[16][3] = {
 };
 /* */
 
-/*
-  //Using currently linear regression WHITE 0 L=3cd/m2
-  //Computed from power matrix for 16-CSK Constellations
-  const uint16_t Pijk8[16][3] = {
-   0, 355,   0,
-   0, 237, 305,
-  424, 237,   0,
-  776,  99, 102,
-   0,   0, 915,
-  141,  99, 559,
-  635,   0, 457,
-  1271,   0,   0
-  };
-  /* */
-
-/*
-  //Using currently linear regression WHITE 0 L=2cd/m2
-  //Computed from power matrix for 16-CSK Constellations
-  const uint16_t Pijk8[16][3] = {
-   0, 237,   0,
-   0, 158, 203,
-  282, 158,   0,
-  518,  66,  68,
-   0,   0, 610,
-  94,  66, 373,
-  424,   0, 305,
-  847,   0,   0
-  };
-  /* */
-
-//Linear regression for WHITE 1000 L=11cd/m² for RGB channel
-//EDITED MANUALLY
-const uint16_t Pijk_w1000[16][3] = {
-  790,  310,  330,
-  210,  510,  130,
-  0,  500,  290,
-  630,  450,  0,
-  340,  380,  420,
-  0,  643,  0,
-  940,  370,  170,
-  1240, 220,  520,
-  0,  350,  730,
-  410,  210,  1040,
-  0,  0,  1674,
-  1170, 0,  912,
-  1370, 300,  0,
-  2024, 210,  210,
-  1850, 0,  386,
-  2571, 0,  0
-};
 
 
 /*** VARIABLES FOR DAC CONTROL ***/
@@ -904,7 +785,7 @@ void get_sym16csk(char* inString) {
   }
 
   Serial.println("CSK symbol selected");
-  Serial.println(syn, BIN);
+  Serial.println(sym, BIN);
 
 
   memset(buffer_temp, 0, 150);
