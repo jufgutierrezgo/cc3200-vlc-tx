@@ -110,6 +110,28 @@ uint8_t select_timer_func = 0;
 //This variable counts the number of frame that have been sent-limit to NO_FRAMES
 uint8_t count_frame = 0;
 
+/*
+  //Using currently linear regression WHITE 0
+  //EDITED MANUALLY
+  const uint16_t Pijk[16][3] = {
+  600,  455,  170,
+  155,  645,  55,
+  0,  657,  120,
+  400,  590,  0,
+  200,  558,  190,
+  0,  711,  0,
+  635,  480,  75,
+  1130, 240,  315,
+  0,  535,  360,
+  360,  295,  700,
+  0,  0,  1829,
+  1310, 0,  705,
+  1010, 385,  0,
+  1600, 210,  115,
+  2070, 0,  292,
+  2800, 0,  0
+  };*/
+
 
 //Using currently linear regression WHITE 0 L=6cd/m2
 //Computed from power matrix for 16-CSK Constellations
@@ -133,10 +155,57 @@ const uint16_t Pijk[16][3] = {
 };
 /* */
 
+/*
+//Using currently linear regression WHITE 0 L=3cd/m2
+//Computed from power matrix for 16-CSK Constellations
+const uint16_t Pijk[16][3] = {
+ 424, 118, 305,
+ 141, 276, 102,
+   0, 237, 305,
+ 424, 237,   0,
+ 141, 158, 406,
+   0, 355,   0,
+ 565, 158, 102,
+ 565,  39, 406,
+   0, 118, 610,
+ 141,  39, 711,
+   0,   0, 915,
+ 424,   0, 610,
+ 847, 118,   0,
+ 988,  39, 102,
+ 847,   0, 305,
+1271,   0,   0
+};
+/* */
+
+/*
+//Using currently linear regression WHITE 0 L=2cd/m2
+//Computed from power matrix for 16-CSK Constellations
+const uint16_t Pijk[16][3] = {
+ 282,  79, 203,
+  94, 184,  68,
+   0, 158, 203,
+ 282, 158,   0,
+  94, 105, 271,
+   0, 237,   0,
+ 376, 105,  68,
+ 376,  26, 271,
+   0,  79, 406,
+  94,  26, 474,
+   0,   0, 610,
+ 282,   0, 406,
+ 565,  79,   0,
+ 659,  26,  68,
+ 565,   0, 203,
+ 847,   0,   0
+};
+
+*/
+
 
 //Using currently linear regression WHITE 0 L=6cd/m2
 //Computed from power matrix for 16-CSK Constellations
-const uint16_t Pijk8[8][3] = {
+const uint16_t Pijk8[16][3] = {
   0, 711,   0,
   0, 474, 610,
   847, 474,   0,
@@ -148,6 +217,56 @@ const uint16_t Pijk8[8][3] = {
 };
 /* */
 
+/*
+//Using currently linear regression WHITE 0 L=3cd/m2
+//Computed from power matrix for 16-CSK Constellations
+const uint16_t Pijk8[16][3] = {
+   0, 355,   0,
+   0, 237, 305,
+ 424, 237,   0,
+ 776,  99, 102,
+   0,   0, 915,
+ 141,  99, 559,
+ 635,   0, 457,
+1271,   0,   0
+};
+/* */
+
+/*
+//Using currently linear regression WHITE 0 L=2cd/m2
+//Computed from power matrix for 16-CSK Constellations
+const uint16_t Pijk8[16][3] = {
+   0, 237,   0,
+   0, 158, 203,
+ 282, 158,   0,
+ 518,  66,  68,
+   0,   0, 610,
+  94,  66, 373,
+ 424,   0, 305,
+ 847,   0,   0
+};
+/* */
+
+//Linear regression for WHITE 1000 L=11cd/m² for RGB channel
+//EDITED MANUALLY
+const uint16_t Pijk_w1000[16][3] = {
+  790,  310,  330,
+  210,  510,  130,
+  0,  500,  290,
+  630,  450,  0,
+  340,  380,  420,
+  0,  643,  0,
+  940,  370,  170,
+  1240, 220,  520,
+  0,  350,  730,
+  410,  210,  1040,
+  0,  0,  1674,
+  1170, 0,  912,
+  1370, 300,  0,
+  2024, 210,  210,
+  1850, 0,  386,
+  2571, 0,  0
+};
 
 
 /*** VARIABLES FOR DAC CONTROL ***/
@@ -221,7 +340,7 @@ void setup()
 
 
   setGPIO();
-  init_DAC();
+  setDAC();
 
 
 
@@ -280,10 +399,12 @@ void setup()
 
   for (int i = 0; i < VLC_Message_OOK.length(); i++) {
 
+
     String aux2 = String(VLC_Message_OOK[i], BIN);
-    // Serial.println(aux2);
-    for (int j = aux2.length(); j > 0; j--)
-      buffer_ook[8 * i + (8 - j)] = aux2[aux2.length() - j];
+
+    Serial.println(aux2);
+
+    for (int j = aux2.length(); j > 0; j--) buffer_ook[8 * i + (8 - j)] = aux2[aux2.length() - j];
 
     //Serial.println(VLC_Message_CSK.length());
   }
@@ -292,15 +413,11 @@ void setup()
 
   manchester();
 
-  /*
-    // Print biffers
-    Serial.println("Buffer 4CSK");
-    Serial.println(buffer_4csk);
-    Serial.println("Buffer OOK");
-    Serial.println(buffer_ook);
-    Serial.println("Buffer Manchester");
-    Serial.println(buffer_man);
-  */
+
+  Serial.println(buffer_4csk);
+  Serial.println(buffer_ook);
+  Serial.println(buffer_man);
+
 }
 
 unsigned int num_clients = 2;
@@ -352,13 +469,13 @@ void loop()
             client.println("<iframe name='votar' style='display:none;'></iframe>");
             client.println("<form action='/set_rgbw_page.php' method='HEAD' target='votar'>");
             client.print("RED CHANNEL  <br>");
-            client.print("<input type='number' name='rval' min='0' max='4096' value='0'> <br>");
+            client.print("<input type='number' name='rval' min='0' max='3000' value='0'> <br>");
             client.println("GREEN CHANNEL  <br>");
-            client.print("<input type='number' name='gval' min='0' max='4096' value='0'> <br>");
+            client.print("<input type='number' name='gval' min='0' max='3000' value='0'> <br>");
             client.print("BLUE CHANNEL  <br>");
-            client.print("<input type='number' name='bval' min='0' max='4096' value='0'> <br>");
+            client.print("<input type='number' name='bval' min='0' max='3000' value='0'> <br>");
             client.print("WHITE CHANNEL  <br>");
-            client.print("<input type='number' name='wval' min='0' max='4096' value='0'> <br>");
+            client.print("<input type='number' name='wval' min='0' max='3000' value='0'> <br>");
             client.print("<button onclick='myFunction()' >SET</button><br><br>");
             client.println("</form>");
 
@@ -399,7 +516,7 @@ void loop()
             client.print("<option value='05'>S4-101</option>");
             client.print("<option value='01'>S5-001</option>");
             client.print("<option value='03'>S6-011</option>");
-            client.print("<option value='07'>S7-111</option>");
+            client.print("<option value='07'>S7-111</option>");            
             client.print("</select><br><br>");
             client.print("<button onclick=''>SET</button><br>");
             client.println("</form>");
@@ -422,7 +539,8 @@ void loop()
             client.print("<option value='OOK'>OOK</option>");
             client.print("<option value='4CSK'>4CSK</option>");
             client.print("<option value='8CSK'>8CSK</option>");
-            client.print("<option value='16CSK'>16CSK</option>");            
+            client.print("<option value='16CSK'>16CSK</option>");
+            client.print("<option value='CSK-White1000'>CSK-White1000</option>");
             client.print("<option value='testOOK'>testOOK</option>");
             client.print("<option value='test16CSK'>test16CSK</option>");
             client.print("<option value='test8CSK'>test8CSK</option>");
@@ -520,7 +638,11 @@ void loop()
           flag_start_vlc = HIGH;
         }
 
-        
+        if (endsWith(buffer, "GET /set_modulation.php?mod=CSK-White1000")) { // GET for transmit using OOK modulationM
+          setTimer(vlc_csk_white1000, freq_vlc);
+          flag_start_vlc = HIGH;
+        }
+
         if (endsWith(buffer, "GET /set_modulation.php?mod=testOOK")) { // GET for transmit using OOK modulationM
           //freq_vlc = 2*freq_vlc;
           setTimer(test_ook, 2 * freq_vlc);
@@ -542,7 +664,11 @@ void loop()
           csk_type = '2';
           setTimer(test_csk, freq_vlc);
           flag_start_vlc = HIGH;
-        }        
+        }
+        if (endsWith(buffer, "GET /set_modulation.php?mod=testCSK-White1000")) { // GET for transmit using OOK modulationM
+          setTimer(test_csk_white1000, freq_vlc);
+          flag_start_vlc = HIGH;
+        }
 
       }
     }
@@ -550,30 +676,29 @@ void loop()
     //Serial.println(buffer_temp);
     //Serial.println("XYZ");
 
-    // Set the RGBW values
     if (flag_luminaire) {
       get_valRGBW(buffer_temp);
       decimal2hexa(rgbw_val[0], rgbw_val[1], rgbw_val[2], rgbw_val[3]);
-      setAPI_DAC('A');
+      setOUT_DAC('A');
       flag_luminaire = LOW;
     }
-    // Set frequency of modulation
+
     if (flag_frequency) {
       get_freq(buffer_temp);
       flag_frequency = LOW;
     }
-    // Start to transmitt
+
     if (flag_start_vlc) {
       flag_start_vlc = LOW;
       startTimer();
     }
-    // Set a DC symbols of 16-CSK
+
     if (flag_16csk) {
       get_sym16csk(buffer_temp);
       xy_16mapping(stack16[sym]);
       flag_16csk = LOW;
+
     }
-    // Set a DC symbols of 8-CSK
     if (flag_8csk) {
       get_sym16csk(buffer_temp);
       xy_8mapping(stack8[sym]);
@@ -696,16 +821,14 @@ void get_valRGBW(char* inString) {
     h++;
   }
 
-  //Serial.print("NANIA :) salsa");
+  //Serial.print("NANIA");
 
-  /*
   //Serial.println(temp_val);
-  Serial.print("Decimal value of RGBW setter:\n");
   Serial.println(rgbw_val[0]);
   Serial.println(rgbw_val[1]);
   Serial.println(rgbw_val[2]);
   Serial.println(rgbw_val[3]);
-  */
+
 
 
   memset(buffer_temp, 0, 150);
@@ -775,8 +898,7 @@ void get_sym16csk(char* inString) {
     h++;
   }
 
-  Serial.println("CSK symbol selected");
-  Serial.println(sym, BIN);
+  Serial.println(sym);
 
 
   memset(buffer_temp, 0, 150);
@@ -850,8 +972,7 @@ void setGPIO() {
   digitalWrite(GREEN_LED, LOW);
 }
 
-// *****************tw*************************************
-void init_DAC() {
+void setDAC() {
 
   SPI.begin();
   SPI.setClockDivider(SPI_CLOCK_DIV1);
@@ -882,46 +1003,35 @@ void set_OutputDAC(uint8_t channel_byte4, uint8_t channel_byte3, uint8_t channel
 
   // take the SS pin low to select the chip:
   digitalWrite(SYNC_PIN, LOW);
-  
 
   //  send in the address and value via SPI:
   //SPI.transfer(WTM);
-  SPI.transfer(uint8_t((channel_byte4 << 4) | channel_byte3));
-  SPI.transfer(uint8_t((channel_byte2 << 4) | channel_byte1));
+  SPI.transfer((channel_byte4 << 4) | channel_byte3);
+  SPI.transfer((channel_byte2 << 4) | channel_byte1);
 
-  /*
-  // print the values sended to the DAC to set the output voltage
-  Serial.println("Print HEXA toto set the DACoutput voltage");
-  Serial.println(uint8_t((channel_byte4 << 4) | channel_byte3));
-  Serial.println(uint8_t((channel_byte2 << 4) | channel_byte1));
-  */  
-  
   // take the SS pin high to de-select the chip:
   digitalWrite(SYNC_PIN, HIGH);
 }
 
-// **************************************************************
-void setAPI_DAC(char sel) {
+void setOUT_DAC(char sel) {
   // sel is the variable to choose the configuration of the DAC
-  // sel=A-> Control the luminous flux RGBW steady state
+  // sel=A-> Control the luminous flux RGBW
   // sel=B-> Modulation OOK
   // sel=C-> Modulation CSK
 
   switch (sel) {
 
-    case 'A':      
-      set_OutputDAC(ch_i, hexa_i[2], hexa_i[1], hexa_i[0]);      
+    case 'A':
+      set_OutputDAC(ch_i, hexa_i[2], hexa_i[1], hexa_i[0]);
       set_OutputDAC(ch_j, hexa_j[2], hexa_j[1], hexa_j[0]);
       set_OutputDAC(ch_k, hexa_k[2], hexa_k[1], hexa_k[0]);
       set_OutputDAC(ch_w, hexa_w[2], hexa_w[1], hexa_w[0]);
       set_ModeDAC(SIM_LSB, SIM_MSB);
-      Serial.println("RGBW values setted !!!");
       break;
 
     case 'B':
       set_OutputDAC(ch_w, hexa_w[2], hexa_w[1], hexa_w[0]);
       set_ModeDAC(SIM_LSB, SIM_MSB);
-      Serial.println("DAC for steady OKK setted !!!");
       break;
 
     case 'C':
@@ -929,7 +1039,6 @@ void setAPI_DAC(char sel) {
       set_OutputDAC(ch_j, hexa_j[2], hexa_j[1], hexa_j[0]);
       set_OutputDAC(ch_k, hexa_k[2], hexa_k[1], hexa_k[0]);
       set_ModeDAC(SIM_LSB, SIM_MSB);
-      Serial.println("DAC for steady CSK setted !!!");
       break;
   }
 
@@ -956,13 +1065,6 @@ void decimal2hexa(unsigned int decimal_i, unsigned int decimal_j, unsigned int d
   hexa_w[2] = decimal_w >> 8;
   hexa_w[1] = (decimal_w << 8) >> 12;
   hexa_w[0] = (decimal_w << 12) >> 12;
-
-  /*
-  Serial.print("Hexadecimal value of RGBW setter:\n");
-  Serial.println(hexa_i[2], BIN);
-  Serial.println(hexa_i[1], BIN);
-  Serial.println(hexa_i[0], BIN);
-  */
 }
 
 void setTimer(void (*timer_func)(void), uint32_t freq) {
@@ -1142,6 +1244,46 @@ void vlc_csk(void)
 
 }
 
+void vlc_csk_white1000(void)
+{
+
+  static uint8_t state_vlc_csk = 0;
+  static uint32_t count_csk_white = 0;
+
+  TimerIntClear(TIMERA0_BASE, TimerIntStatus(TIMERA0_BASE, true));
+
+  switch (state_vlc_csk) {
+
+    case 0:
+      //sync();
+      count_csk_white++;
+      break;
+
+    case 1:
+      test_csk_white1000();
+      count_csk_white++;
+      break;
+
+    default:
+      break;
+
+  }
+
+  if (count_csk_white == freq_vlc) {
+    state_vlc_csk = 1;
+    set_OutputDAC(ch_w, 0, 0, 0);
+  }
+
+  if (count_csk_white == 10 * freq_vlc) {
+    stopTimer();
+    count_csk_white = 0;
+    state_vlc_csk = 0;
+    //Serial.print('F');
+  }
+}
+
+
+
 
 void sync(void) {
 
@@ -1152,12 +1294,12 @@ void sync(void) {
   if (state_sync) {
     //rgbw_val[3] = wlevel_ook;
     decimal2hexa(0, 0, 0, 0);
-    setAPI_DAC('B');
+    setOUT_DAC('B');
   }
   else {
     //rgbw_val[3] = 0;
     decimal2hexa(0, 0, 0, wlevel_ook);
-    setAPI_DAC('B');
+    setOUT_DAC('B');
   }
 
   state_sync = !state_sync;
@@ -1216,23 +1358,35 @@ void test_csk(void)
   digitalWrite(RED_LED, clock_state);
   clock_state = !clock_state;
 
-  if (csk_type == '4') {
+  if(csk_type == '4') { 
     xy_16mapping(stack16[sym_csk]);
-    if (sym_csk == 15) sym_csk = 0;
-    else   sym_csk++;
+     if (sym_csk == 15) sym_csk = 0;
+      else   sym_csk++;
   }
-  if (csk_type == '3') {
+  if(csk_type == '3') {
     xy_8mapping(stack8[sym_csk]);
     if (sym_csk == 7) sym_csk = 0;
-    else   sym_csk++;
+      else   sym_csk++;
   }
-  if (csk_type == '2') {
+  if(csk_type == '2') {
     xy_16mapping(stack4[sym_csk]);
     if (sym_csk == 3) sym_csk = 0;
-    else   sym_csk++;
+      else   sym_csk++;
   }
 
+ 
 
+}
+
+void test_csk_white1000(void)
+{
+  static uint8_t sym_csk = 0;
+
+  TimerIntClear(TIMERA0_BASE, TimerIntStatus(TIMERA0_BASE, true));
+
+  xy_w1000_mapping(sym_csk);
+  sym_csk++;
+  if (sym_csk == 15) sym_csk = 0;
 
 }
 
@@ -1241,12 +1395,12 @@ void ook_mapping(boolean ook_sym) {
 
   if (ook_sym) {
     decimal2hexa(0, 0, 0, wlevel_ook);
-    setAPI_DAC('B');
+    setOUT_DAC('B');
   }
 
   else {
     decimal2hexa(0, 0, 0, 0);
-    setAPI_DAC('B');
+    setOUT_DAC('B');
   }
 
 
@@ -1264,7 +1418,7 @@ void xy_8mapping(char buffer_8csk) {
       csk_rgb[1] = Pijk8[1][1];
       csk_rgb[2] = Pijk8[1][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '1':
@@ -1272,7 +1426,7 @@ void xy_8mapping(char buffer_8csk) {
       csk_rgb[1] = Pijk8[5][1];
       csk_rgb[2] = Pijk8[5][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '2':
@@ -1280,7 +1434,7 @@ void xy_8mapping(char buffer_8csk) {
       csk_rgb[1] = Pijk8[3][1];
       csk_rgb[2] = Pijk8[3][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '3':
@@ -1288,7 +1442,7 @@ void xy_8mapping(char buffer_8csk) {
       csk_rgb[1] = Pijk8[6][1];
       csk_rgb[2] = Pijk8[6][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '4':
@@ -1296,7 +1450,7 @@ void xy_8mapping(char buffer_8csk) {
       csk_rgb[1] = Pijk8[0][1];
       csk_rgb[2] = Pijk8[0][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '5':
@@ -1304,7 +1458,7 @@ void xy_8mapping(char buffer_8csk) {
       csk_rgb[1] = Pijk8[4][1];
       csk_rgb[2] = Pijk8[4][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '6':
@@ -1312,7 +1466,7 @@ void xy_8mapping(char buffer_8csk) {
       csk_rgb[1] = Pijk8[2][1];
       csk_rgb[2] = Pijk8[2][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '7':
@@ -1320,12 +1474,12 @@ void xy_8mapping(char buffer_8csk) {
       csk_rgb[1] = Pijk8[7][1];
       csk_rgb[2] = Pijk8[7][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case 'X':
       decimal2hexa(0, 0, 0, 0);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     default:
@@ -1348,7 +1502,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[5][1];
       csk_rgb[2] = Pijk[5][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '1':
@@ -1356,7 +1510,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[1][1];
       csk_rgb[2] = Pijk[1][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '2':
@@ -1364,7 +1518,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[4][1];
       csk_rgb[2] = Pijk[4][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '3':
@@ -1372,7 +1526,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[2][1];
       csk_rgb[2] = Pijk[2][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '4':
@@ -1380,7 +1534,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[12][1];
       csk_rgb[2] = Pijk[12][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '5':
@@ -1388,7 +1542,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[3][1];
       csk_rgb[2] = Pijk[3][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '6':
@@ -1396,7 +1550,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[0][1];
       csk_rgb[2] = Pijk[0][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '7':
@@ -1404,7 +1558,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[6][1];
       csk_rgb[2] = Pijk[6][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '8':
@@ -1412,7 +1566,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[15][1];
       csk_rgb[2] = Pijk[15][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case '9':
@@ -1420,7 +1574,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[10][1];
       csk_rgb[2] = Pijk[10][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case 'a':
@@ -1428,7 +1582,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[8][1];
       csk_rgb[2] = Pijk[8][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case 'b':
@@ -1436,7 +1590,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[9][1];
       csk_rgb[2] = Pijk[9][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case 'c':
@@ -1444,7 +1598,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[14][1];
       csk_rgb[2] = Pijk[14][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case 'd':
@@ -1452,7 +1606,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[13][1];
       csk_rgb[2] = Pijk[13][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case 'e':
@@ -1460,7 +1614,7 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[7][1];
       csk_rgb[2] = Pijk[7][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case 'f':
@@ -1468,12 +1622,12 @@ void xy_16mapping(char buffer_16csk) {
       csk_rgb[1] = Pijk[11][1];
       csk_rgb[2] = Pijk[11][2];
       decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     case 'X':
       decimal2hexa(0, 0, 0, 0);
-      setAPI_DAC('C');
+      setOUT_DAC('C');
       break;
 
     default:
@@ -1482,6 +1636,146 @@ void xy_16mapping(char buffer_16csk) {
 
 }
 
+
+void xy_w1000_mapping(uint8_t buffer_16csk) {
+  static uint16_t csk_rgb[3] = {
+    0
+  };
+
+  switch (buffer_16csk) {
+    case 0:
+      csk_rgb[0] = Pijk_w1000[5][0];
+      csk_rgb[1] = Pijk_w1000[5][1];
+      csk_rgb[2] = Pijk_w1000[5][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 1:
+      csk_rgb[0] = Pijk_w1000[1][0];
+      csk_rgb[1] = Pijk_w1000[1][1];
+      csk_rgb[2] = Pijk_w1000[1][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 2:
+      csk_rgb[0] = Pijk_w1000[4][0];
+      csk_rgb[1] = Pijk_w1000[4][1];
+      csk_rgb[2] = Pijk_w1000[4][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 3:
+      csk_rgb[0] = Pijk_w1000[2][0];
+      csk_rgb[1] = Pijk_w1000[2][1];
+      csk_rgb[2] = Pijk_w1000[2][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 4:
+      csk_rgb[0] = Pijk_w1000[12][0];
+      csk_rgb[1] = Pijk_w1000[12][1];
+      csk_rgb[2] = Pijk_w1000[12][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 5:
+      csk_rgb[0] = Pijk_w1000[3][0];
+      csk_rgb[1] = Pijk_w1000[3][1];
+      csk_rgb[2] = Pijk_w1000[3][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 6:
+      csk_rgb[0] = Pijk_w1000[0][0];
+      csk_rgb[1] = Pijk_w1000[0][1];
+      csk_rgb[2] = Pijk_w1000[0][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 7:
+      csk_rgb[0] = Pijk_w1000[6][0];
+      csk_rgb[1] = Pijk_w1000[6][1];
+      csk_rgb[2] = Pijk_w1000[6][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 8:
+      csk_rgb[0] = Pijk_w1000[15][0];
+      csk_rgb[1] = Pijk_w1000[15][1];
+      csk_rgb[2] = Pijk_w1000[15][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 9:
+      csk_rgb[0] = Pijk_w1000[10][0];
+      csk_rgb[1] = Pijk_w1000[10][1];
+      csk_rgb[2] = Pijk_w1000[10][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 10:
+      csk_rgb[0] = Pijk_w1000[8][0];
+      csk_rgb[1] = Pijk_w1000[8][1];
+      csk_rgb[2] = Pijk_w1000[8][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 11:
+      csk_rgb[0] = Pijk_w1000[9][0];
+      csk_rgb[1] = Pijk_w1000[9][1];
+      csk_rgb[2] = Pijk_w1000[9][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 12:
+      csk_rgb[0] = Pijk_w1000[14][0];
+      csk_rgb[1] = Pijk_w1000[14][1];
+      csk_rgb[2] = Pijk_w1000[14][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 13:
+      csk_rgb[0] = Pijk_w1000[13][0];
+      csk_rgb[1] = Pijk_w1000[13][1];
+      csk_rgb[2] = Pijk_w1000[13][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 14:
+      csk_rgb[0] = Pijk_w1000[7][0];
+      csk_rgb[1] = Pijk_w1000[7][1];
+      csk_rgb[2] = Pijk_w1000[7][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    case 15:
+      csk_rgb[0] = Pijk_w1000[11][0];
+      csk_rgb[1] = Pijk_w1000[11][1];
+      csk_rgb[2] = Pijk_w1000[11][2];
+      decimal2hexa(csk_rgb[0], csk_rgb[1], csk_rgb[2], rgbw_val[3]);
+      setOUT_DAC('C');
+      break;
+
+    default:
+      break;
+  }
+
+}
 
 void manchester(void) {
 
