@@ -271,12 +271,11 @@ void setup()
 
   */
 
+
   //*****************************************************/
   // Convert the character data to bin
   //
-
-
-
+  /*
   for (int i = 0; i < sizeof(buffer_ook); i++) buffer_ook[i] = '0';
 
   for (int i = 0; i < VLC_Message_OOK.length(); i++) {
@@ -284,22 +283,27 @@ void setup()
 
     String aux2 = String(VLC_Message_OOK[i], BIN);
 
-    Serial.println(aux2);
+    //Serial.println(aux2);
 
     for (int j = aux2.length(); j > 0; j--) buffer_ook[8 * i + (8 - j)] = aux2[aux2.length() - j];
 
     //Serial.println(VLC_Message_CSK.length());
   }
 
+  */
+
   /*******************************************************/
 
   manchester();
 
-
+  
+  // Print the buffers of the modulations
+  /*
+  Serial.println("Print buffers:");
   Serial.println(buffer_4csk);
   Serial.println(buffer_ook);
   Serial.println(buffer_man);
-
+  */
 }
 
 unsigned int num_clients = 2;
@@ -338,7 +342,7 @@ void loop()
 
             client.println("HTTP/1.1   200 OK");
             client.println("Content-type:text/html");
-            client.println();
+            client.println("");
 
             // the content of the HTTP response follows the header:
             client.println("<html><head><title>VLC CC3200 WiFi Web Server</title></head><body align=center>");
@@ -696,6 +700,7 @@ void get_valRGBW(char* inString) {
   //Serial.print("NANIA");
 
   //Serial.println(temp_val);
+  Serial.println("RGBW values setter:");
   Serial.println(rgbw_val[0]);
   Serial.println(rgbw_val[1]);
   Serial.println(rgbw_val[2]);
@@ -735,6 +740,7 @@ void get_freq(char* inString) {
     h++;
   }
 
+  Serial.println("Frequency setter:");
   Serial.println(freq_vlc);
 
   memset(buffer_temp, 0, 150);
@@ -770,6 +776,7 @@ void get_sym16csk(char* inString) {
     h++;
   }
 
+  Serial.println("16-CSK Symbol setter:");
   Serial.println(sym);
 
 
@@ -1030,11 +1037,7 @@ void vlc_ook(void)
     default:
       break;
 
-  }
-
-
-
-  //Serial.println(count_csk);
+  } 
 
 
 
@@ -1184,7 +1187,8 @@ void test_csk(void)
   //Toogle the RED LED in the Lauchpad. This bit control the Synchronization for SER experiments.
   static bool clock_state = LOW;
 
-  Serial.print(sym_csk);
+  //Serial.print("Symbols transmitted for test:");
+  //Serial.print(sym_csk);
 
   TimerIntClear(TIMERA0_BASE, TimerIntStatus(TIMERA0_BASE, true));
 
