@@ -110,10 +110,10 @@ uint8_t select_timer_func = 0;
 //This variable counts the number of frame that have been sent-limit to NO_FRAMES
 uint8_t count_frame = 0;
 
-
-//Using currently linear regression WHITE 0 L=6cd/m2
-//Computed from power matrix for 16-CSK Constellations
-const uint16_t Pijk[16][3] = {
+/*
+  //Using currently linear regression WHITE 0 L=6cd/m2
+  //Computed from power matrix for 16-CSK Constellations
+  const uint16_t Pijk[16][3] = {
   847, 237, 610,
   282, 553, 203,
   0, 474, 610,
@@ -130,14 +130,34 @@ const uint16_t Pijk[16][3] = {
   1976,  79, 203,
   1694,   0, 610,
   2541,   0,   0
-};
-/* */
+  };
+  /* */
+//Using currently linear regression WHITE 0 L=5cd/m2
+  //Computed from power matrix for 16-CSK Constellations
+  // Calibration LABE 10-Feb-2023
+  const uint16_t Pijk[16][3] = {
+355, 103, 490,
+ 118, 240, 163,
+   0, 206, 490,
+ 355, 206,   0,
+ 118, 137, 654,
+   0, 309,   0,
+ 473, 137, 163,
+ 473,  34, 654,
+   0, 103, 980,
+ 118,  34,1144,
+   0,   0,1471,
+ 355,   0, 980,
+ 709, 103,   0,
+ 827,  34, 163,
+ 709,   0, 490,
+1064,   0,   0
+  };
 
-
-
-//Using currently linear regression WHITE 0 L=6cd/m2
-//Computed from power matrix for 16-CSK Constellations
-const uint16_t Pijk8[8][3] = {
+/*
+  //Using currently linear regression WHITE 0 L=6cd/m2
+  //Computed from power matrix for 16-CSK Constellations
+  const uint16_t Pijk8[8][3] = {
   0, 711,   0,
   0, 474, 610,
   847, 474,   0,
@@ -146,9 +166,22 @@ const uint16_t Pijk8[8][3] = {
   282, 197, 1118,
   1271,   0, 915,
   2541,   0,   0
-};
-/* */
+  };
+  /* */
 
+//Using currently linear regression WHITE 0 L=5cd/m2
+//Computed from power matrix for 16-CSK Constellations
+// Calibration LABE 10-Feb-2023
+const uint16_t Pijk8[8][3] = {
+  0, 309,   0,
+   0, 206, 490,
+ 355, 206,   0,
+ 650,  86, 163,
+   0,   0,1471,
+ 118,  86, 899,
+ 532,   0, 735,
+1064,   0,   0
+  };
 
 
 /*** VARIABLES FOR DAC CONTROL ***/
@@ -276,9 +309,9 @@ void setup()
   // Convert the character data to bin
   //
   /*
-  for (int i = 0; i < sizeof(buffer_ook); i++) buffer_ook[i] = '0';
+    for (int i = 0; i < sizeof(buffer_ook); i++) buffer_ook[i] = '0';
 
-  for (int i = 0; i < VLC_Message_OOK.length(); i++) {
+    for (int i = 0; i < VLC_Message_OOK.length(); i++) {
 
 
     String aux2 = String(VLC_Message_OOK[i], BIN);
@@ -288,7 +321,7 @@ void setup()
     for (int j = aux2.length(); j > 0; j--) buffer_ook[8 * i + (8 - j)] = aux2[aux2.length() - j];
 
     //Serial.println(VLC_Message_CSK.length());
-  }
+    }
 
   */
 
@@ -296,13 +329,13 @@ void setup()
 
   manchester();
 
-  
+
   // Print the buffers of the modulations
   /*
-  Serial.println("Print buffers:");
-  Serial.println(buffer_4csk);
-  Serial.println(buffer_ook);
-  Serial.println(buffer_man);
+    Serial.println("Print buffers:");
+    Serial.println(buffer_4csk);
+    Serial.println(buffer_ook);
+    Serial.println(buffer_man);
   */
 }
 
@@ -362,36 +395,37 @@ void loop()
             client.println("nav ul a{color: darkgreen;text-decoration: none;}");
             client.println("</style>");
 
-            
+            //Header of the page
             client.println(" <body><header id=\"header\"><div class=\"innertube\">");
             client.println("<h1>WebServer for CC3200 LED-Fixture</h1>");
             //client.println("<h2>Zybyn Technology</h2>");
             client.println("<h3>Designed by Juan F. Gutierrez</h3>");
             client.println("</div></header>");
 
+            //Description content
             client.println("<div id=\"wrapper\">");
             client.println("<main>");
             client.println("<div id=\"content\">");
             client.println("<div class=\"innertube\">");
             client.println("<h1>Description of LED-Fixture</h1>");
             client.println("<p>The webpage of CC3200 LED-Fixture allows to the users control different features for Visible Light Communications. </p>");
-            
-            
+
+            //Channel setter content
             client.println("<h2>Channel Setter</h1>");
             client.println("<iframe name='votar' style='display:none;'></iframe>");
             client.println("<form action='/set_rgbw_page.php' method='HEAD' target='votar'>");
-            client.print("RED CHANNEL  <br>");
-            client.print("<input class=\"input \" type='number' name='rval' min='0' max='3000' value='0'> <br>");
+            client.println("RED CHANNEL  <br>");
+            client.println("<input class=\"input \" type='number' name='rval' min='0' max='3000' value='0'> <br>");
             client.println("GREEN CHANNEL  <br>");
-            client.print("<input class=\"input \" type='number' name='gval' min='0' max='3000' value='0'> <br>");
-            client.print("BLUE CHANNEL  <br>");
-            client.print("<input class=\"input \" type='number' name='bval' min='0' max='3000' value='0'> <br>");
-            client.print("WHITE CHANNEL  <br>");
-            client.print("<input class=\"input \" type='number' name='wval' min='0' max='3000' value='0'> <br><br>");
-            client.print("<button class=\"button \" onclick='myFunction()' >SET</button><br><br>");
+            client.println("<input class=\"input \" type='number' name='gval' min='0' max='3000' value='0'> <br>");
+            client.println("BLUE CHANNEL  <br>");
+            client.println("<input class=\"input \" type='number' name='bval' min='0' max='3000' value='0'> <br>");
+            client.println("WHITE CHANNEL  <br>");
+            client.println("<input class=\"input \" type='number' name='wval' min='0' max='3000' value='0'> <br><br>");
+            client.println("<button class=\"button \" onclick='myFunction()' >SET</button><br><br>");
             client.println("</form>");
 
-            
+            //16-CSK Symbol content
             client.println("<h2>16-CSK Symbol Setter</h1>");
             client.println("<iframe name='csk-symbol-16' style='display:none;'></iframe>");
             client.println("<form action='/csk_symbol_16.php' method='HEAD' target='csk-symbol-8'>");
@@ -416,7 +450,7 @@ void loop()
             client.print("<button class=\"button \" onclick=''>SET</button><br>");
             client.println("</form>");
 
-            
+            //8-CSK Symbol content
             client.println("<h2>8-CSK Symbol Setter</h1>");
             client.println("<iframe name='csk-symbol-8' style='display:none;'></iframe>");
             client.println("<form action='/csk_symbol_8.php' method='HEAD' target='csk-symbol-8'>");
@@ -428,12 +462,12 @@ void loop()
             client.print("<option value='05'>S4-101</option>");
             client.print("<option value='01'>S5-001</option>");
             client.print("<option value='03'>S6-011</option>");
-            client.print("<option value='07'>S7-111</option>");            
+            client.print("<option value='07'>S7-111</option>");
             client.print("</select><br><br>");
             client.print("<button class=\"button \" onclick=''>SET</button><br>");
             client.println("</form>");
 
-
+            //Frequency setter content
             client.println("<h2>Frequency Setter</h1>");
             client.println("<iframe name='freq' style='display:none;'></iframe>");
             client.println("<form action='/set_freq.php' method='HEAD' target='freq'>");
@@ -441,7 +475,7 @@ void loop()
             client.print("<button class=\"button \" onclick='' >Set Freq</button><br>");
             client.println("</form>");
 
-
+            //Modulation setter content
             client.println("<h2>Modulation Setter</h1>");
             client.print("Choose the modulation <br>");
             client.println("<iframe name='modulation' style='display:none;'></iframe>");
@@ -450,7 +484,7 @@ void loop()
             client.print("<option value='OOK'>OOK</option>");
             client.print("<option value='4CSK'>4CSK</option>");
             client.print("<option value='8CSK'>8CSK</option>");
-            client.print("<option value='16CSK'>16CSK</option>");            
+            client.print("<option value='16CSK'>16CSK</option>");
             client.print("<option value='testOOK'>testOOK</option>");
             client.print("<option value='test16CSK'>test16CSK</option>");
             client.print("<option value='test8CSK'>test8CSK</option>");
@@ -459,6 +493,7 @@ void loop()
             client.print("<button class=\"button \" onclick=''>DOWNLOAD</button><br>");
             client.println("</form>");
 
+            //Button setter modulation
             client.println("<iframe name='stop_mod' style='display:none;'></iframe>");
             client.println("<form action='/stop_mod.php' method='HEAD' target='stop_mod'>");
             client.print("<button class=\"button \" onclick=''>STOP</button><br>");
@@ -476,23 +511,23 @@ void loop()
             client.println("</div>");
             client.println("</main>");
 
-            
-            client.println("<nav id=\"nav\"><div class=\"innertube\"><img src=''/><h3>Sections</h3>");             
-            client.println("<ul>");             
-            client.println("<li><a href=\"#\">Channel Setter</a></li>");             
-            client.println("<li><a href=\"#\">CSK Symbol Setter</a></li>");             
-            client.println("<li><a href=\"#\">Frequency Setter</a></li>");             
-            client.println("<li><a href=\"#\">Modulation Setter</a></li> ");             
-            client.println("</ul></div></nav>");             
-            client.println("</div>");             
-            
+            //Navigation
+            client.println("<nav id=\"nav\"><div class=\"innertube\"><img src=''/><h3>Sections</h3>");
+            client.println("<ul>");
+            client.println("<li><a href=\"#\">Channel Setter</a></li>");
+            client.println("<li><a href=\"#\">CSK Symbol Setter</a></li>");
+            client.println("<li><a href=\"#\">Frequency Setter</a></li>");
+            client.println("<li><a href=\"#\">Modulation Setter</a></li> ");
+            client.println("</ul></div></nav>");
+            client.println("</div>");
+
             client.println("<footer id=\"footer\">");
             client.println("<div class=\"innertube\">");
             client.println("<p>Zybyn Technology</p>");
             client.println("</div></footer>");
-            
+
             client.println("</body></html>");
-         
+
             client.println("<p id='demo'></p>");
             client.println("<script>");
             client.println("function myFunction() {");
@@ -574,7 +609,7 @@ void loop()
           csk_type = '4';
           setTimer(vlc_csk, freq_vlc);
           flag_start_vlc = HIGH;
-        }        
+        }
 
         if (endsWith(buffer, "GET /set_modulation.php?mod=testOOK")) { // GET for transmit using OOK modulationM
           //freq_vlc = 2*freq_vlc;
@@ -597,7 +632,7 @@ void loop()
           csk_type = '2';
           setTimer(test_csk, freq_vlc);
           flag_start_vlc = HIGH;
-        }        
+        }
 
       }
     }
@@ -1090,7 +1125,7 @@ void vlc_ook(void)
     default:
       break;
 
-  } 
+  }
 
 
 
@@ -1248,23 +1283,23 @@ void test_csk(void)
   digitalWrite(RED_LED, clock_state);
   clock_state = !clock_state;
 
-  if(csk_type == '4') { 
+  if (csk_type == '4') {
     xy_16mapping(stack16[sym_csk]);
-     if (sym_csk == 15) sym_csk = 0;
-      else   sym_csk++;
+    if (sym_csk == 15) sym_csk = 0;
+    else   sym_csk++;
   }
-  if(csk_type == '3') {
+  if (csk_type == '3') {
     xy_8mapping(stack8[sym_csk]);
     if (sym_csk == 7) sym_csk = 0;
-      else   sym_csk++;
+    else   sym_csk++;
   }
-  if(csk_type == '2') {
+  if (csk_type == '2') {
     xy_16mapping(stack4[sym_csk]);
     if (sym_csk == 3) sym_csk = 0;
-      else   sym_csk++;
+    else   sym_csk++;
   }
 
- 
+
 
 }
 
