@@ -133,26 +133,26 @@ uint8_t count_frame = 0;
   };
   /* */
 //Using currently linear regression WHITE 0 L=5cd/m2
-  //Computed from power matrix for 16-CSK Constellations
-  // Calibration LABE 10-Feb-2023
-  const uint16_t Pijk[16][3] = {
-355, 103, 490,
- 118, 240, 163,
-   0, 206, 490,
- 355, 206,   0,
- 118, 137, 654,
-   0, 309,   0,
- 473, 137, 163,
- 473,  34, 654,
-   0, 103, 980,
- 118,  34,1144,
-   0,   0,1471,
- 355,   0, 980,
- 709, 103,   0,
- 827,  34, 163,
- 709,   0, 490,
-1064,   0,   0
-  };
+//Computed from power matrix for 16-CSK Constellations
+// Calibration LABE 10-Feb-2023
+const uint16_t Pijk[16][3] = {
+  355, 103, 490,
+  118, 240, 163,
+  0, 206, 490,
+  355, 206,   0,
+  118, 137, 654,
+  0, 309,   0,
+  473, 137, 163,
+  473,  34, 654,
+  0, 103, 980,
+  118,  34, 1144,
+  0,   0, 1471,
+  355,   0, 980,
+  709, 103,   0,
+  827,  34, 163,
+  709,   0, 490,
+  1064,   0,   0
+};
 
 /*
   //Using currently linear regression WHITE 0 L=6cd/m2
@@ -174,14 +174,14 @@ uint8_t count_frame = 0;
 // Calibration LABE 10-Feb-2023
 const uint16_t Pijk8[8][3] = {
   0, 309,   0,
-   0, 206, 490,
- 355, 206,   0,
- 650,  86, 163,
-   0,   0,1471,
- 118,  86, 899,
- 532,   0, 735,
-1064,   0,   0
-  };
+  0, 206, 490,
+  355, 206,   0,
+  650,  86, 163,
+  0,   0, 1471,
+  118,  86, 899,
+  532,   0, 735,
+  1064,   0,   0
+};
 
 
 /*** VARIABLES FOR DAC CONTROL ***/
@@ -381,9 +381,11 @@ void loop()
             client.println("<html><head><title>LED-Fixture CC3200</title>");
             client.println("<style type=\"text/css\">");
             client.println("body{margin:0;padding:0;font-family: Sans-Serif;line-height: 1.5em;}");
-            client.println(".button {width: 250px;}");
-            client.println(".input {width: 250px;}");
-            client.println(".selector {width: 250px;}");
+            client.println(".button{display: inline-block; width: 50%; padding: 5px 25px; font-size: 15px; cursor: pointer; text-align: center; text-decoration: none; outline: none; color: #000; background-color: #ccc; border: none; border-radius: 15px; box-shadow: 0 9px #999;}");
+            client.println(".button:hover{background-color: #3e8e41}");
+            client.println(".button:active{background-color: #3e8e41; box-shadow: 0 5px #666; transform: translateY(4px);}");
+            client.println(".input {width: 50%;}");
+            client.println(".selector {width: 50%;}");
             client.println("#chart svg{height: 400px;}");
             client.println("#header{background: #ccc;height: 150px;}");
             client.println("#header h1{margin: 0;padding-top: 15px;}");
