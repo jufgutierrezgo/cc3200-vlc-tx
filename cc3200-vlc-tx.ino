@@ -345,31 +345,57 @@ void loop()
             client.println("");
 
             // the content of the HTTP response follows the header:
-            client.println("<html><head><title>VLC CC3200 WiFi Web Server</title></head><body align=center>");
-            client.println("<h1 align=center><font color=\"red\">Welcome to the WiFi VLC Web Server</font></h1>");
-            client.println("<h2 align=left><font color=\"black\">In this page, you can download an image using visible light communication download link.</font></h2>");
-            client.println("<h2 align=left><font color=\"black\">Also, you can control the Luminous Flux RGBW Luminaire and test the Wifi connection blinking RED LED on CC3200 Lauchpad.</font></h2>");
+            client.println("<html><head><title>LED-Fixture CC3200</title>");
+            client.println("<style type=\"text/css\">");
+            client.println("body{margin:0;padding:0;font-family: Sans-Serif;line-height: 1.5em;}");
+            client.println(".button {width: 250px;}");
+            client.println(".input {width: 250px;}");
+            client.println(".selector {width: 250px;}");
+            client.println("#chart svg{height: 400px;}");
+            client.println("#header{background: #ccc;height: 150px;}");
+            client.println("#header h1{margin: 0;padding-top: 15px;}");
+            client.println("main{padding-bottom: 10010px;margin-bottom: -10000px;float: left;width: 100%;}");
+            client.println("#nav{padding-bottom: 10010px;margin-bottom: -10000px;float: left;width: 200px;margin-left: -100%;background: #eee;}");
+            client.println("#footer{clear: left;width: 100%;background: #ccc;text-align: center;padding: 4px 0;}");
+            client.println("#wrapper{overflow: hidden;}#content{margin-left: 230px; /* Same as 'nav' width */}.innertube{margin: 25px; /* Padding for content */margin-top: 0;}p{color: #555;}");
+            client.println("nav ul{list-style-type: none;margin: 0;padding: 0;}");
+            client.println("nav ul a{color: darkgreen;text-decoration: none;}");
+            client.println("</style>");
 
-            client.print("<h3 align=left><font color=\"blue\">*** CONTROL RGBW VALUES FOR LUMINAIRE (DECIMAL VALUES 0-1400)*** <br> </font></h3>");
+            
+            client.println(" <body><header id=\"header\"><div class=\"innertube\">");
+            client.println("<h1>WebServer for CC3200 LED-Fixture</h1>");
+            //client.println("<h2>Zybyn Technology</h2>");
+            client.println("<h3>Designed by Juan F. Gutierrez</h3>");
+            client.println("</div></header>");
 
+            client.println("<div id=\"wrapper\">");
+            client.println("<main>");
+            client.println("<div id=\"content\">");
+            client.println("<div class=\"innertube\">");
+            client.println("<h1>Description of LED-Fixture</h1>");
+            client.println("<p>The webpage of CC3200 LED-Fixture allows to the users control different features for Visible Light Communications. </p>");
+            
+            
+            client.println("<h2>Channel Setter</h1>");
             client.println("<iframe name='votar' style='display:none;'></iframe>");
             client.println("<form action='/set_rgbw_page.php' method='HEAD' target='votar'>");
             client.print("RED CHANNEL  <br>");
-            client.print("<input type='number' name='rval' min='0' max='3000' value='0'> <br>");
+            client.print("<input class=\"input \" type='number' name='rval' min='0' max='3000' value='0'> <br>");
             client.println("GREEN CHANNEL  <br>");
-            client.print("<input type='number' name='gval' min='0' max='3000' value='0'> <br>");
+            client.print("<input class=\"input \" type='number' name='gval' min='0' max='3000' value='0'> <br>");
             client.print("BLUE CHANNEL  <br>");
-            client.print("<input type='number' name='bval' min='0' max='3000' value='0'> <br>");
+            client.print("<input class=\"input \" type='number' name='bval' min='0' max='3000' value='0'> <br>");
             client.print("WHITE CHANNEL  <br>");
-            client.print("<input type='number' name='wval' min='0' max='3000' value='0'> <br>");
-            client.print("<button onclick='myFunction()' >SET</button><br><br>");
+            client.print("<input class=\"input \" type='number' name='wval' min='0' max='3000' value='0'> <br><br>");
+            client.print("<button class=\"button \" onclick='myFunction()' >SET</button><br><br>");
             client.println("</form>");
 
-            client.print("<h3 align=left><font color=\"blue\">*** CONTROL RGBW VALUES FOR 16-CSK SYMBOLS*** <br> </font></h3>");
-            client.print("SYMBOLS FOR 16 CSK  <br>");
+            
+            client.println("<h2>16-CSK Symbol Setter</h1>");
             client.println("<iframe name='csk-symbol-16' style='display:none;'></iframe>");
             client.println("<form action='/csk_symbol_16.php' method='HEAD' target='csk-symbol-8'>");
-            client.print(" <select name='symbol'>");
+            client.print(" <select class=\"selector \" name='symbol'>");
             client.print("<option value='06'>S0-0110</option>");
             client.print("<option value='01'>S1-0001</option>");
             client.print("<option value='03'>S2-0011</option>");
@@ -387,14 +413,14 @@ void loop()
             client.print("<option value='12'>S14-1100</option>");
             client.print("<option value='08'>S15-1000</option>");
             client.print("</select><br><br>");
-            client.print("<button onclick=''>SET</button><br>");
+            client.print("<button class=\"button \" onclick=''>SET</button><br>");
             client.println("</form>");
 
-            client.print("SYMBOLS FOR 8-CSK <br>");
-
+            
+            client.println("<h2>8-CSK Symbol Setter</h1>");
             client.println("<iframe name='csk-symbol-8' style='display:none;'></iframe>");
             client.println("<form action='/csk_symbol_8.php' method='HEAD' target='csk-symbol-8'>");
-            client.print(" <select name='symbol'>");
+            client.print(" <select class=\"selector \" name='symbol'>");
             client.print("<option value='04'>S0-100</option>");
             client.print("<option value='00'>S1-000</option>");
             client.print("<option value='06'>S2-110</option>");
@@ -404,24 +430,23 @@ void loop()
             client.print("<option value='03'>S6-011</option>");
             client.print("<option value='07'>S7-111</option>");            
             client.print("</select><br><br>");
-            client.print("<button onclick=''>SET</button><br>");
+            client.print("<button class=\"button \" onclick=''>SET</button><br>");
             client.println("</form>");
 
 
-
-            client.print("<h3 align=left><font color=\"blue\">*** RECEIVE VLC MESSAGE ***<br> </font></h2>");
-
-            client.print("Set frequency (Default 1000Hz) <br>");
+            client.println("<h2>Frequency Setter</h1>");
             client.println("<iframe name='freq' style='display:none;'></iframe>");
             client.println("<form action='/set_freq.php' method='HEAD' target='freq'>");
-            client.print("<input type='number' name='fval' min='1' max='1000000' value='1000'> <br><br>");
-            client.print("<button onclick='' >Set Freq</button><br>");
+            client.print("<input class=\"input \" class=\"input \" type='number' name='fval' min='1' max='1000000' value='1000'> <br><br>");
+            client.print("<button class=\"button \" onclick='' >Set Freq</button><br>");
             client.println("</form>");
 
+
+            client.println("<h2>Modulation Setter</h1>");
             client.print("Choose the modulation <br>");
             client.println("<iframe name='modulation' style='display:none;'></iframe>");
             client.println("<form action='/set_modulation.php' method='HEAD' target='modulation'>");
-            client.print(" <select name='mod'>");
+            client.print(" <select class=\"selector \" name='mod'>");
             client.print("<option value='OOK'>OOK</option>");
             client.print("<option value='4CSK'>4CSK</option>");
             client.print("<option value='8CSK'>8CSK</option>");
@@ -431,15 +456,43 @@ void loop()
             client.print("<option value='test8CSK'>test8CSK</option>");
             client.print("<option value='test4CSK'>test4CSK</option>");
             client.print("</select><br><br>");
-            client.print("<button onclick=''>DOWNLOAD</button><br>");
+            client.print("<button class=\"button \" onclick=''>DOWNLOAD</button><br>");
             client.println("</form>");
 
             client.println("<iframe name='stop_mod' style='display:none;'></iframe>");
             client.println("<form action='/stop_mod.php' method='HEAD' target='stop_mod'>");
-            client.print("<button onclick=''>STOP</button><br>");
+            client.print("<button class=\"button \" onclick=''>STOP</button><br>");
             client.println("</form>");
 
 
+            client.println("<p id='demo'></p>");
+            client.println("<script>");
+            client.println("function myFunction() {");
+            //client.println("document.getElementById('demo').innerHTML = 43;");
+            client.println("}");
+            client.println("</script>");
+
+            client.println("</div>");
+            client.println("</div>");
+            client.println("</main>");
+
+            
+            client.println("<nav id=\"nav\"><div class=\"innertube\"><img src=''/><h3>Sections</h3>");             
+            client.println("<ul>");             
+            client.println("<li><a href=\"#\">Channel Setter</a></li>");             
+            client.println("<li><a href=\"#\">CSK Symbol Setter</a></li>");             
+            client.println("<li><a href=\"#\">Frequency Setter</a></li>");             
+            client.println("<li><a href=\"#\">Modulation Setter</a></li> ");             
+            client.println("</ul></div></nav>");             
+            client.println("</div>");             
+            
+            client.println("<footer id=\"footer\">");
+            client.println("<div class=\"innertube\">");
+            client.println("<p>Zybyn Technology</p>");
+            client.println("</div></footer>");
+            
+            client.println("</body></html>");
+         
             client.println("<p id='demo'></p>");
             client.println("<script>");
             client.println("function myFunction() {");
