@@ -7,7 +7,7 @@
   when WiFi clients (cellphone, laptop, etc) connect to the Access Point and when
   they disconnect.
 
-  Connections trigger a serial dump of every connected client with their IP and MAC.
+  Connections trigger a serial dump of every connected cl ient with their IP and MAC.
   Disconnections only trigger a simple notification, as the "last disconnected client"
   information is not saved anywhere.
 
@@ -30,8 +30,10 @@
 #include "driverlib/interrupt.h"
 #include "driverlib/timer.h"
 
-#define NO_FRAMES 2000
+#define NO_FRAMES 5
 #define L_FRAME 240
+
+#define L_MESSAGE_CSK 25
 
 #define stack16 "0123456789abcdef"
 #define stack8 "01234567"
@@ -64,9 +66,7 @@ WiFiServer server(80);
 
 /*** VARIABLE FOR MODULATION CONTROL ***/
 /**** Data for Tx ******/
-//const String VLC_Message_CSK = String("---VLC@jufgutierrezgo***electronic-engineer***master-in-science-of-telecomunication***matisse-laboratory***universidad-nacional de colombia***the-test-frame-to-demostrate-the-optical-link-with-color-shift-keying***enjoy-this-new-tech++++");
-//const String VLC_Message_CSK = String("*******VLC@jufgutierrezgo***electronic-engineer***master-in-science-of-telecomunication***");
-const String VLC_Message_CSK = String("*******VLC@jufgutierrezgo******master-in-science-of-telecomunication*******");
+char message_CSK[] = "CSK message: Hello World!";
 //const String VLC_Message_CSK = String("*809809fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210@@@@");
 //const  String VLC_Message_OOK = String("+++VLC****@jufgutierrezgo*****optical-link-on-off-keying++++");
 //const  String VLC_Message_OOK = String("VLC@jufgutierrezgo**mod-ook***");
@@ -74,16 +74,15 @@ const  String VLC_Message_OOK = String("This-is-a-new-message-jfg2****");
 //char buffer_csk[] = {"2a2a2a2a2a2a2a564c43406a756667757469657272657a676f2a2a2a2a2a2a6d61737465722d696e2d736369656e63652d6f662d74656c65636f6d756e69636174696f6e2a2a2a2a2a2a2a"};
 //char buffer_16csk[] = {"XX8090123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789a"};
 //This array is used when the receiver only read 80 symbols (240 adc-data values)
-char buffer_16csk[] = {"XX8090123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789a"};
+//char buffer_16csk[] = {"XX8090123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789a"};
+char buffer_16csk[2*L_MESSAGE_CSK+2];
 char buffer_8csk[] =  {"XX745012345670123456701234567012345670123456701234567012345670123456701234567012"};
 char buffer_4csk[] =  {"XX809680968096809680968096809680968096809680968096809680968096809680968096809680"};
-//char buffer_16csk[] = {"XX80900000000000000000000111111111111222222222222233333333334444444444555555556666666777777777888888889999999aaaaaaaabbbbbbbbbbccccccccccccdddddddddddddddeeeeee"};
-//char buffer_16csk[] = {"9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"};
-//char buffer_16csk[] = {"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8888888888888888888800000000000000000000000000000000000000000000000000000000999999999999999999999999999999999999999999999999999999"};
-//char buffer_4csk[] = {"XX8800990609966696096060099800690008886868080689099666688998698699888066090000669609960668688006668069098680698806886690999066808086989968008869889980"};
+
 char buffer_ook[L_FRAME / 2] = {
   0
 };
+
 char buffer_man[2 * L_FRAME] = {
   0
 };
@@ -131,11 +130,11 @@ uint8_t count_frame = 0;
   1694,   0, 610,
   2541,   0,   0
   };
-  /* */
-//Using currently linear regression WHITE 0 L=5cd/m2
-//Computed from power matrix for 16-CSK Constellations
-// Calibration LABE 10-Feb-2023
-const uint16_t Pijk[16][3] = {
+  /*
+  //Using currently linear regression WHITE 0 L=5cd/m2
+  //Computed from power matrix for 16-CSK Constellations
+  // Calibration LABE 10-Feb-2023
+  const uint16_t Pijk[16][3] = {
   355, 103, 490,
   118, 240, 163,
   0, 206, 490,
@@ -152,8 +151,27 @@ const uint16_t Pijk[16][3] = {
   827,  34, 163,
   709,   0, 490,
   1064,   0,   0
+  };
+*/
+// Calibration LABE 31-Mar-2023
+const uint16_t Pijk[16][3] = {
+  209,  67, 305,
+  70, 155, 102,
+  0, 133, 305,
+  209, 133,   0,
+  70,  89, 407,
+  0, 200,   0,
+  279,  89, 102,
+  279,  22, 407,
+  0,  67, 611,
+  70,  22, 712,
+  0,   0, 916,
+  209,   0, 611,
+  419,  67,   0,
+  489,  22, 102,
+  419,   0, 305,
+  628,   0,   0
 };
-
 /*
   //Using currently linear regression WHITE 0 L=6cd/m2
   //Computed from power matrix for 16-CSK Constellations
@@ -167,12 +185,12 @@ const uint16_t Pijk[16][3] = {
   1271,   0, 915,
   2541,   0,   0
   };
-  /* */
+  /*
 
-//Using currently linear regression WHITE 0 L=5cd/m2
-//Computed from power matrix for 16-CSK Constellations
-// Calibration LABE 10-Feb-2023
-const uint16_t Pijk8[8][3] = {
+  //Using currently linear regression WHITE 0 L=5cd/m2
+  //Computed from power matrix for 16-CSK Constellations
+  // Calibration LABE 10-Feb-2023
+  const uint16_t Pijk8[8][3] = {
   0, 309,   0,
   0, 206, 490,
   355, 206,   0,
@@ -181,8 +199,19 @@ const uint16_t Pijk8[8][3] = {
   118,  86, 899,
   532,   0, 735,
   1064,   0,   0
+  };
+*/
+// Calibration LABE 31-Mar-2023
+const uint16_t Pijk8[8][3] = {
+  0, 200,   0,
+  0, 133, 305,
+  209, 133,   0,
+  384,  55, 102,
+  0,   0, 916,
+  70,  55, 560,
+  314,   0, 458,
+  628,   0,   0
 };
-
 
 /*** VARIABLES FOR DAC CONTROL ***/
 
@@ -289,21 +318,22 @@ void setup()
   //*****************************************************/
   // Convert the character data to hexa
   //
-  /*
-    for (int i =0; i<VLC_Message_CSK.length();i++){
+  
+  //converting ascii string to hex string
+  char buffer_temp[2*L_MESSAGE_CSK];
+  string2hexString(message_CSK, buffer_temp);
 
-    String aux2 = String(VLC_Message_CSK[i],HEX);
+  for(int i=0; i<=sizeof(buffer_16csk); i++){
 
-    for(int j=0;j<aux2.length();j++) buffer_csk[2*i+j] = aux2[j];
-    Serial.println(aux2);
-
-
+    if(i<2)
+      buffer_16csk[i] = 'X';        
+    else 
+      buffer_16csk[i] = buffer_temp[i-2];       
+      
     }
-
-    Serial.println(buffer_csk);
-
-  */
-
+  
+  Serial.println("16CSK buffer in HEX:");
+  Serial.println(buffer_16csk);
 
   //*****************************************************/
   // Convert the character data to bin
@@ -348,7 +378,7 @@ void loop()
 
   unsigned int a, i;
 
-  // ********************************************************************
+  // ********************* WEB PAGE FUNCTIONS *********************
 
   int j = 0;
   WiFiClient client = server.available();   // listen for incoming clients
@@ -680,6 +710,8 @@ void loop()
 
 
   // ********************************************************************
+
+  
   a = WiFi.getTotalDevices();
 
   // Did a client connect/disconnect since the last time we checked?
@@ -710,6 +742,24 @@ void loop()
 
   // **************************************************************
 
+}
+
+//function to convert ascii char[] to hex-string (char[])
+void string2hexString(char* input, char* output)
+{
+    int loop;
+    int i;
+
+    i = 0;
+    loop = 0;
+
+    while (input[loop] != '\0') {
+        sprintf((char*)(output + i), "%02X", input[loop]);
+        loop += 1;
+        i += 2;
+    }
+    //insert NULL at the end of the output string
+    output[i++] = '\0';
 }
 
 
@@ -1272,7 +1322,7 @@ void test_ook(void)
 
 void test_csk(void)
 {
-  static uint8_t sym_csk = 0;
+  static int8_t sym_csk = -1;
 
   //Toogle the RED LED in the Lauchpad. This bit control the Synchronization for SER experiments.
   static bool clock_state = LOW;
@@ -1286,22 +1336,30 @@ void test_csk(void)
   clock_state = !clock_state;
 
   if (csk_type == '4') {
-    xy_16mapping(stack16[sym_csk]);
-    if (sym_csk == 15) sym_csk = 0;
+
+    if (sym_csk == -1) xy_16mapping('X');
+    else xy_16mapping(stack16[sym_csk]);
+
+    if (sym_csk == 15) sym_csk = -1;
     else   sym_csk++;
+
   }
+
   if (csk_type == '3') {
-    xy_8mapping(stack8[sym_csk]);
-    if (sym_csk == 7) sym_csk = 0;
+    if (sym_csk == -1) xy_8mapping('X');
+    else xy_8mapping(stack8[sym_csk]);
+
+    if (sym_csk == 7) sym_csk = -1;
     else   sym_csk++;
   }
+
   if (csk_type == '2') {
-    xy_16mapping(stack4[sym_csk]);
-    if (sym_csk == 3) sym_csk = 0;
+    if (sym_csk == -1) xy_16mapping('X');
+    else xy_16mapping(stack4[sym_csk]);
+
+    if (sym_csk == 3) sym_csk = -1;
     else   sym_csk++;
   }
-
-
 
 }
 
@@ -1493,7 +1551,7 @@ void xy_16mapping(char buffer_16csk) {
       setOUT_DAC('C');
       break;
 
-    case 'a':
+    case 'A':
       csk_rgb[0] = Pijk[8][0];
       csk_rgb[1] = Pijk[8][1];
       csk_rgb[2] = Pijk[8][2];
@@ -1501,7 +1559,7 @@ void xy_16mapping(char buffer_16csk) {
       setOUT_DAC('C');
       break;
 
-    case 'b':
+    case 'B':
       csk_rgb[0] = Pijk[9][0];
       csk_rgb[1] = Pijk[9][1];
       csk_rgb[2] = Pijk[9][2];
@@ -1509,7 +1567,7 @@ void xy_16mapping(char buffer_16csk) {
       setOUT_DAC('C');
       break;
 
-    case 'c':
+    case 'C':
       csk_rgb[0] = Pijk[14][0];
       csk_rgb[1] = Pijk[14][1];
       csk_rgb[2] = Pijk[14][2];
@@ -1517,7 +1575,7 @@ void xy_16mapping(char buffer_16csk) {
       setOUT_DAC('C');
       break;
 
-    case 'd':
+    case 'D':
       csk_rgb[0] = Pijk[13][0];
       csk_rgb[1] = Pijk[13][1];
       csk_rgb[2] = Pijk[13][2];
@@ -1525,7 +1583,7 @@ void xy_16mapping(char buffer_16csk) {
       setOUT_DAC('C');
       break;
 
-    case 'e':
+    case 'E':
       csk_rgb[0] = Pijk[7][0];
       csk_rgb[1] = Pijk[7][1];
       csk_rgb[2] = Pijk[7][2];
@@ -1533,7 +1591,7 @@ void xy_16mapping(char buffer_16csk) {
       setOUT_DAC('C');
       break;
 
-    case 'f':
+    case 'F':
       csk_rgb[0] = Pijk[11][0];
       csk_rgb[1] = Pijk[11][1];
       csk_rgb[2] = Pijk[11][2];
