@@ -30,12 +30,13 @@
 #include "driverlib/interrupt.h"
 #include "driverlib/timer.h"
 
-#define NO_FRAMES 5
+#define NO_FRAMES 250
+
 #define L_FRAME 240
 
 #define L_MESSAGE_CSK 25
 
-#define stack16 "0123456789abcdef"
+#define stack16 "0123456789ABCDEF"
 #define stack8 "01234567"
 #define stack4 "0689"
 
@@ -1205,7 +1206,7 @@ void vlc_csk(void)
       set_OutputDAC(ch_j, 0, 0, 0);
       set_OutputDAC(ch_k, 0, 0, 0);
       set_ModeDAC(SIM_LSB, SIM_MSB);
-      state_vlc_csk = 1;
+      state_vlc_csk = 2;
 
       break;
 
@@ -1220,7 +1221,7 @@ void vlc_csk(void)
     case 2:
       //stopTimer();
 
-      if (count_csk == L_FRAME / 3 + 1) {
+      if (count_csk == sizeof(buffer_16csk)) {
         count_frame++;
         count_csk = 0;
         state_vlc_csk = 3;
@@ -1230,7 +1231,7 @@ void vlc_csk(void)
         if (csk_type == '2') xy_16mapping(buffer_4csk[count_csk]);
         if (csk_type == '3') xy_8mapping(buffer_8csk[count_csk]);
         if (csk_type == '4') xy_16mapping(buffer_16csk[count_csk]);
-        delayMicroseconds(5000);
+        // delayMicroseconds(5000);
         count_csk++;
         clock_state = !clock_state;
         digitalWrite(RED_LED, clock_state);
@@ -1465,12 +1466,12 @@ void xy_8mapping(char buffer_8csk) {
 
 
 
-void xy_16mapping(char buffer_16csk) {
+void xy_16mapping(char symbol_16csk) {
   static uint16_t csk_rgb[3] = {
     0
   };
 
-  switch (buffer_16csk) {
+  switch (symbol_16csk) {
     case '0':
       csk_rgb[0] = Pijk[5][0];
       csk_rgb[1] = Pijk[5][1];
