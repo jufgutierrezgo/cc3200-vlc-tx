@@ -1,4 +1,4 @@
-
+  
 
 /*
     WiFi AP-mode Connect/Disconnect monitor
@@ -96,6 +96,7 @@ boolean flag_frequency = LOW;
 boolean flag_start_vlc = LOW;
 boolean flag_16csk = LOW;
 boolean flag_8csk = LOW;
+boolean flag_msg = LOW;
 
 unsigned int wlevel_ook = 2000;
 uint8_t sym = 16;
@@ -314,28 +315,12 @@ void setup()
   Serial.println("Webserver started!");
   /*****************************************************/
 
-
-
   //*****************************************************/
-  // Convert the character data to hexa
-  //
+  // Convert Message[] to HEX-frame for 16CSK
+  // Check the default Message[] 
   
-  //converting ascii string to hex string
-  char buffer_temp[2*L_MESSAGE_CSK];
-  string2hexString(message_CSK, buffer_temp);
-
-  for(int i=0; i<=sizeof(buffer_16csk); i++){
-
-    if(i<2)
-      buffer_16csk[i] = 'X';        
-    else 
-      buffer_16csk[i] = buffer_temp[i-2];       
-      
-    }
-  
-  Serial.println("16CSK buffer in HEX:");
-  Serial.println(buffer_16csk);
-
+  create_HEX_frame();
+    
   //*****************************************************/
   // Convert the character data to bin
   //
@@ -532,6 +517,14 @@ void loop()
             client.print("<button class=\"button \" onclick=''>STOP</button><br>");
             client.println("</form>");
 
+            //Message setter content
+            client.println("<h2>Message Setter</h1>");
+            client.println("<iframe name='msg' style='display:none;'></iframe>");
+            client.println("<form action='/set_message.php' method='HEAD' target='msg'>");
+            client.println("Message to transmit <br>");
+            client.println("<input class=\"input \" type='text' name='msg' value='Type your message' maxlength='25'> <br>");            
+            client.println("<button class=\"button \" onclick='' >SET</button><br><br>");
+            client.println("</form>");
 
             client.println("<p id='demo'></p>");
             client.println("<script>");
@@ -666,6 +659,9 @@ void loop()
           setTimer(test_csk, freq_vlc);
           flag_start_vlc = HIGH;
         }
+        if (endsWith(buffer, "GET /set_message.php")) { // GET /set_rgbw_page.php for set the RGBW channels inn the luminaire
+          flag_msg = HIGH;
+        }
 
       }
     }
@@ -700,6 +696,12 @@ void loop()
       get_sym16csk(buffer_temp);
       xy_8mapping(stack8[sym]);
       flag_8csk = LOW;
+
+    }
+    if (flag_msg) {
+      get_msg(buffer_temp);      
+      create_HEX_frame();
+      flag_msg=LOW;
 
     }
 
@@ -745,6 +747,33 @@ void loop()
 
 }
 
+
+// Convert the Message to HEX frame
+void create_HEX_frame(void){    
+  
+  //converting ascii string to hex string
+  char buffer_temp[2*L_MESSAGE_CSK];
+  string2hexString(message_CSK, buffer_temp);
+
+  Serial.println("16CSK buffer_TEMP in HEX:");
+  Serial.println(buffer_temp);
+  
+  for(int i=0; i<=sizeof(buffer_16csk); i++){
+
+    if(i<2)
+      buffer_16csk[i] = 'X';        
+    else 
+      buffer_16csk[i] = buffer_temp[i-2];       
+      
+    }
+
+   
+  
+  Serial.println("16CSK buffer in HEX:");
+  Serial.println(buffer_16csk);
+
+}
+
 //function to convert ascii char[] to hex-string (char[])
 void string2hexString(char* input, char* output)
 {
@@ -781,6 +810,51 @@ boolean endsWith(char* inString, char* compString) {
     }
   }
   return true;
+}
+
+// Function to get the message from http 
+void get_msg(char* inString) {
+
+   
+  //Serial.println(inString);
+
+  int strLength = strlen(inString);
+  int h = 0;
+  int j = 0;
+  int k = 0;
+  int count_read = 0;
+  boolean copy_char = LOW;
+  memset(message_CSK, 0, L_MESSAGE_CSK);
+
+  
+  while (h < strLength) {
+
+    if (copy_char) {
+      message_CSK[j] =  inString[h];
+      j++;
+      }
+      
+    if (inString[h] == '=') copy_char = HIGH;
+
+    if (inString[h+2] == 'H') {
+      copy_char = LOW;
+      h = strLength;    
+    }
+    
+    h++;
+    
+  }
+
+  //Serial.print("NANIA");
+
+  //Serial.println(temp_val);
+  Serial.println("Message setter:");
+  Serial.println(message_CSK);
+
+  // Convert Message to HEX-frame for 16CSK  
+  
+  memset(buffer_temp, 0, 150);
+  //return rgbw_val;
 }
 
 void get_valRGBW(char* inString) {
