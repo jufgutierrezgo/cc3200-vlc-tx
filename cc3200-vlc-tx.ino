@@ -1,17 +1,10 @@
   
 
 /*
-    WiFi AP-mode Connect/Disconnect monitor
-
-  This sketch will put the CC3200 or CC3100 in Access Point mode and report
-  when WiFi clients (cellphone, laptop, etc) connect to the Access Point and when
-  they disconnect.
-
-  Connections trigger a serial dump of every connected cl ient with their IP and MAC.
-  Disconnections only trigger a simple notification, as the "last disconnected client"
-  information is not saved anywhere.
-
-  Created 11/11/2014 by Eric Brundick for the Energia project.
+    Webserver and Wifi network application for Visible Light Communicaiton
+  
+  Designed by Juan Felipe Gutiérrez Gómez
+  email: jufgutierrezgo@gmail.com
 */
 
 #ifndef __CC3200R1M1RGC__
